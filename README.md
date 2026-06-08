@@ -22,17 +22,17 @@ Production-pattern Kubernetes observability stack deployed on a local kind clust
 
 ```
 kind cluster (monitoring-control-plane)
-└── namespace: monitoring
-    ├── prometheus-operator         # Manages Prometheus/Alertmanager lifecycle via CRDs
-    ├── prometheus                  # Scrapes metrics from all cluster targets
-    ├── grafana                     # Visualizes metrics; 30+ dashboards auto-provisioned
-    ├── alertmanager                # Receives firing alerts from Prometheus
-    ├── node-exporter               # Exposes host OS metrics
-    └── kube-state-metrics          # Exposes Kubernetes API object metrics
+âââ namespace: monitoring
+    âââ prometheus-operator         # Manages Prometheus/Alertmanager lifecycle via CRDs
+    âââ prometheus                  # Scrapes metrics from all cluster targets
+    âââ grafana                     # Visualizes metrics; 30+ dashboards auto-provisioned
+    âââ alertmanager                # Receives firing alerts from Prometheus
+    âââ node-exporter               # Exposes host OS metrics
+    âââ kube-state-metrics          # Exposes Kubernetes API object metrics
 
 namespace: default
-    ├── nginx-demo (3 replicas)     # Sample workload under observation
-    └── load-generator              # Continuous traffic generator for live metrics
+    âââ nginx-demo (3 replicas)     # Sample workload under observation
+    âââ load-generator              # Continuous traffic generator for live metrics
 ```
 
 ---
@@ -54,13 +54,13 @@ namespace: default
 git clone https://github.com/ManuJB023/k8s-monitoring-stack.git
 cd k8s-monitoring-stack
 
-# 1 � Deploy the cluster and monitoring stack
+# 1 - Deploy the cluster and monitoring stack
 ./deploy.sh
 
-# 2 � Deploy custom alerting rules
+# 2 - Deploy custom alerting rules
 kubectl apply -f alerts/prometheus-rules.yaml
 
-# 3 � Build and load the Flask metrics app
+# 3 - Build and load the Flask metrics app
 docker build -t flask-metrics-app:latest app/
 kind load docker-image flask-metrics-app:latest --name monitoring
 kubectl apply -f k8s/flask-app.yaml
@@ -95,21 +95,24 @@ k8s-monitoring-stack/
 ├── helm/
 │   └── prometheus-stack/
 │       └── values.yaml             # Helm overrides: resource limits, retention, passwords
+├── alerts/
+│   └── prometheus-rules.yaml       # Custom PrometheusRule CRD
+├── app/
+│   ├── Dockerfile
+│   ├── main.py                     # Flask app with /metrics endpoint
+│   └── requirements.txt
+├── k8s/
+│   └── flask-app.yaml              # Deployment + Service + ServiceMonitor
 ├── deploy.sh                       # One-command full stack deployment
 ├── teardown.sh                     # Cluster teardown
 └── README.md
 ```
-
----
-
-## Key Configuration Decisions
-
 **`cluster/kind-config.yaml`**
 - Pins `kindest/node:v1.30.0` for reproducibility
-- Exposes `containerPort 30000` → `hostPort 30000` for optional NodePort services
+- Exposes `containerPort 30000` â `hostPort 30000` for optional NodePort services
 
 **`helm/prometheus-stack/values.yaml`**
-- Prometheus retention set to `24h` (appropriate for local dev; production typically 15–30d with remote storage)
+- Prometheus retention set to `24h` (appropriate for local dev; production typically 15â30d with remote storage)
 - Resource requests set explicitly to prevent unbounded memory consumption on a single-node cluster
 - Grafana admin password version-controlled for demo environments (use Secrets in production)
 
@@ -122,7 +125,7 @@ Pre-provisioned dashboards available immediately after deployment:
 | Dashboard | What it shows |
 |---|---|
 | Kubernetes / Compute Resources / Cluster | Cluster-wide CPU and memory utilisation by namespace |
-| Kubernetes / Compute Resources / Namespace (Pods) | Per-pod CPU, memory, and network — with live workload data |
+| Kubernetes / Compute Resources / Namespace (Pods) | Per-pod CPU, memory, and network - with live workload data |
 | Node Exporter / Nodes | Host OS metrics: CPU per core, load average, memory pressure, disk I/O |
 | Alertmanager / Overview | Alert ingestion rate and notification pipeline activity |
 
@@ -142,7 +145,7 @@ kubectl run load-generator --image=busybox --restart=Never -- \
   sh -c "while true; do wget -q -O- http://nginx-demo; sleep 0.1; done"
 ```
 
-View results in **Kubernetes / Compute Resources / Namespace (Pods)** — switch namespace to `default`.
+View results in **Kubernetes / Compute Resources / Namespace (Pods)** - switch namespace to `default`.
 
 To stop:
 ```bash
@@ -165,9 +168,9 @@ Deletes the kind cluster and all resources. Docker images are cached locally for
 
 ## Why This Project
 
-Observability is a first-class SRE discipline. In oil and gas field operations, every sensor system — downhole NMR tools, formation pressure testers, cement evaluation platforms — runs with continuous data acquisition, real-time QC thresholds, and escalation protocols when readings fall outside operational limits. This stack applies the same principle to cloud infrastructure: instrument everything, define thresholds, alert on deviation, and visualize system health for rapid incident response.
+Observability is a first-class SRE discipline. In oil and gas field operations, every sensor system - downhole NMR tools, formation pressure testers, cement evaluation platforms - runs with continuous data acquisition, real-time QC thresholds, and escalation protocols when readings fall outside operational limits. This stack applies the same principle to cloud infrastructure: instrument everything, define thresholds, alert on deviation, and visualize system health for rapid incident response.
 
-The patterns here (metrics collection → aggregation → alerting → dashboards) are directly transferable to production Kubernetes environments and industrial IoT telemetry pipelines.
+The patterns here (metrics collection â aggregation â alerting â dashboards) are directly transferable to production Kubernetes environments and industrial IoT telemetry pipelines.
 
 ---
 
@@ -183,8 +186,8 @@ The patterns here (metrics collection → aggregation → alerting → dashboard
 
 ## Related Projects
 
-- [job-agent](https://github.com/ManuJB023/job-agent) — AI-powered job matching pipeline on AWS (Lambda, DynamoDB, EventBridge, SES, Terraform)
-- [manuelbauka.dev](https://manuelbauka.dev) — Portfolio
+- [job-agent](https://github.com/ManuJB023/job-agent) - AI-powered job matching pipeline on AWS (Lambda, DynamoDB, EventBridge, SES, Terraform)
+- [manuelbauka.dev](https://manuelbauka.dev) - Portfolio
 ---
 
 ## Screenshots
@@ -236,5 +239,5 @@ A Flask app (`app/`) instrumented with `prometheus_client` exposes a `/metrics` 
 - p95 latency: `histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket[5m])) by (le))`
 - Error rate: `sum(rate(app_requests_total{status="500"}[5m])) / sum(rate(app_requests_total[5m])) * 100`
 
-### Flask App — SRE Metrics Dashboard
+### Flask App - SRE Metrics Dashboard
 ![Flask App Dashboard](docs/flask-app-dashboard.png)
