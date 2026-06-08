@@ -200,3 +200,6 @@ kubectl apply -f alerts/prometheus-rules.yaml
 | NodeMemoryPressure | Node memory utilisation > 80% for > 2 minutes | warning |
 
 Verify rules are loaded: `http://localhost:9090/rules` (requires Prometheus port-forward on 9090)
+
+### Prometheus Rule Health
+![Prometheus Rules](docs/prometheus-rules.png)
