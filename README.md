@@ -182,3 +182,21 @@ The patterns here (metrics collection → aggregation → alerting → dashboard
 
 ### Node Exporter / Nodes
 ![Node Exporter](docs/node-exporter.png)
+
+---
+
+## Custom Alerting Rules
+
+Deployed via `PrometheusRule` CRD (`alerts/prometheus-rules.yaml`):
+
+```bash
+kubectl apply -f alerts/prometheus-rules.yaml
+```
+
+| Alert | Condition | Severity |
+|---|---|---|
+| PodCrashLooping | Pod restarts > 3 in 15 minutes | warning |
+| PodNotRunning | Pod not in Running/Succeeded state for > 2 minutes | warning |
+| NodeMemoryPressure | Node memory utilisation > 80% for > 2 minutes | warning |
+
+Verify rules are loaded: `http://localhost:9090/rules` (requires Prometheus port-forward on 9090)
