@@ -1,0 +1,19 @@
+grafana:
+  adminPassword: "prom-operator"
+  service:
+    type: ClusterIP
+
+prometheus:
+  prometheusSpec:
+    retention: 24h
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests:
+        memory: 64Mi
+        cpu: 50m
