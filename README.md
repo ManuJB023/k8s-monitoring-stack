@@ -22,17 +22,17 @@ Production-pattern Kubernetes observability stack deployed on a local kind clust
 
 ```
 kind cluster (monitoring-control-plane)
-âââ namespace: monitoring
-    âââ prometheus-operator         # Manages Prometheus/Alertmanager lifecycle via CRDs
-    âââ prometheus                  # Scrapes metrics from all cluster targets
-    âââ grafana                     # Visualizes metrics; 30+ dashboards auto-provisioned
-    âââ alertmanager                # Receives firing alerts from Prometheus
-    âââ node-exporter               # Exposes host OS metrics
-    âââ kube-state-metrics          # Exposes Kubernetes API object metrics
+└── namespace: monitoring
+    ├── prometheus-operator         # Manages Prometheus/Alertmanager lifecycle via CRDs
+    ├── prometheus                  # Scrapes metrics from all cluster targets
+    ├── grafana                     # Visualizes metrics; 30+ dashboards auto-provisioned
+    ├── alertmanager                # Receives firing alerts from Prometheus
+    ├── node-exporter               # Exposes host OS metrics
+    └── kube-state-metrics          # Exposes Kubernetes API object metrics
 
 namespace: default
-    âââ nginx-demo (3 replicas)     # Sample workload under observation
-    âââ load-generator              # Continuous traffic generator for live metrics
+    ├── nginx-demo (3 replicas)     # Sample workload under observation
+    └── load-generator              # Continuous traffic generator for live metrics
 ```
 
 ---
@@ -109,10 +109,10 @@ k8s-monitoring-stack/
 ```
 **`cluster/kind-config.yaml`**
 - Pins `kindest/node:v1.30.0` for reproducibility
-- Exposes `containerPort 30000` â `hostPort 30000` for optional NodePort services
+- Exposes `containerPort 30000` → `hostPort 30000` for optional NodePort services
 
 **`helm/prometheus-stack/values.yaml`**
-- Prometheus retention set to `24h` (appropriate for local dev; production typically 15â30d with remote storage)
+- Prometheus retention set to `24h` (appropriate for local dev; production typically 15–30d with remote storage)
 - Resource requests set explicitly to prevent unbounded memory consumption on a single-node cluster
 - Grafana admin password version-controlled for demo environments (use Secrets in production)
 
