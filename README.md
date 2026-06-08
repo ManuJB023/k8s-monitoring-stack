@@ -203,3 +203,26 @@ Verify rules are loaded: `http://localhost:9090/rules` (requires Prometheus port
 
 ### Prometheus Rule Health
 ![Prometheus Rules](docs/prometheus-rules.png)
+
+---
+
+## Application-Layer Instrumentation
+
+A Flask app (`app/`) instrumented with `prometheus_client` exposes a `/metrics` endpoint scraped by Prometheus via a `ServiceMonitor` CRD (`k8s/flask-app.yaml`).
+
+**Metrics exposed:**
+
+| Metric | Type | Description |
+|---|---|---|
+| `app_requests_total` | Counter | Total requests by method, endpoint, status |
+| `app_request_latency_seconds` | Histogram | Request latency with p50/p95/p99 buckets |
+| `app_active_users` | Gauge | Simulated active user count |
+| `app_jobs_processed_total` | Counter | Background jobs by status |
+
+**Key PromQL queries:**
+- Request rate: `sum(rate(app_requests_total[5m])) by (status)`
+- p95 latency: `histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket[5m])) by (le))`
+- Error rate: `sum(rate(app_requests_total{status="500"}[5m])) / sum(rate(app_requests_total[5m])) * 100`
+
+### Flask App — SRE Metrics Dashboard
+![Flask App Dashboard](docs/flask-app-dashboard.png)
