@@ -48,13 +48,25 @@ namespace: default
 
 ## Quick Start
 
+**Prerequisites:** Docker Desktop running, kind, kubectl, Helm installed.
+
 ```bash
 git clone https://github.com/ManuJB023/k8s-monitoring-stack.git
 cd k8s-monitoring-stack
+
+# 1 — Deploy the cluster and monitoring stack
 ./deploy.sh
+
+# 2 — Deploy custom alerting rules
+kubectl apply -f alerts/prometheus-rules.yaml
+
+# 3 — Build and load the Flask metrics app
+docker build -t flask-metrics-app:latest app/
+kind load docker-image flask-metrics-app:latest --name monitoring
+kubectl apply -f k8s/flask-app.yaml
 ```
 
-The script will:
+The `deploy.sh` script will:
 1. Create a kind cluster from `cluster/kind-config.yaml`
 2. Add the `prometheus-community` Helm repo
 3. Deploy the full `kube-prometheus-stack` into the `monitoring` namespace
