@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-metrics-app
+  namespace: default
+  labels:
+    app: flask-metrics-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-metrics-app
+  template:
+    metadata:
+      labels:
+        app: flask-metrics-app
+    spec:
+      containers:
+        - name: flask-metrics-app
+          image: flask-metrics-app:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 50m
+            limits:
+              memory: 128Mi
+              cpu: 100m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-metrics-app
+  namespace: default
+  labels:
+    app: flask-metrics-app
+spec:
+  selector:
+    app: flask-metrics-app
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: flask-metrics-app
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app: flask-metrics-app
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
